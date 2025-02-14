@@ -5,13 +5,13 @@ import type { ModelInstance } from './api/types';
 interface StoreState {
   instances: ModelInstance[];
   selectedInstance: ModelInstance | null;
-  setInstances: (newInstances: ModelInstance[]) => void;
-  setSelectedInstance: (newInstance: ModelInstance | null) => void;
+  setInstances: (instances: ModelInstance[]) => void;
+  setSelectedInstance: (instance: ModelInstance | null) => void;
 }
 
 export const useStore = create<StoreState>((set) => ({
   instances: [],
   selectedInstance: null,
-  setInstances: (newInstances: ModelInstance[]) => set({ instances: newInstances }),
-  setSelectedInstance: (newInstance: ModelInstance | null) => set({ selectedInstance: newInstance })
+  setInstances: (instances) => set({ instances }),
+  setSelectedInstance: (instance) => set({ selectedInstance: instance })
 })); 

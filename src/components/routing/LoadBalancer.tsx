@@ -3,7 +3,7 @@ import { ModelInstance } from '@/lib/api/types';
 
 interface LoadBalancerProps {
   instances: ModelInstance[];
-  onInstanceSelect: (selectedInstance: ModelInstance) => void;
+  onInstanceSelect: (instance: ModelInstance) => void;
 }
 
 export const LoadBalancer: React.FC<LoadBalancerProps> = ({ 
@@ -25,9 +25,9 @@ export const LoadBalancer: React.FC<LoadBalancerProps> = ({
   }, [instances, currentIndex]);
 
   useEffect(() => {
-    const selectedInstance = selectNextInstance();
-    if (selectedInstance) {
-      onInstanceSelect(selectedInstance);
+    const instance = selectNextInstance();
+    if (instance) {
+      onInstanceSelect(instance);
     }
   }, [selectNextInstance, onInstanceSelect]);
 

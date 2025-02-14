@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { ModelInstance } from '@/lib/api/types';
 import { ApiClient } from '@/lib/api/client';
 
