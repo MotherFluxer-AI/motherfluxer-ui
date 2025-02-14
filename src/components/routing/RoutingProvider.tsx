@@ -4,7 +4,7 @@
  * @ai-critical-points: Must coordinate instance selection and health monitoring
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { ModelInstance } from '@/lib/api/types';
 import { LoadBalancer } from './LoadBalancer';
 import { HealthChecker } from './HealthChecker';
@@ -12,7 +12,11 @@ import { FailoverHandler } from './FailoverHandler';
 import { useStore } from '@/lib/store';
 import { ApiClient } from '@/lib/api/client';
 
-export const RoutingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface Props {
+  children: React.ReactNode;
+}
+
+export const RoutingProvider: React.FC<Props> = ({ children }) => {
   const { 
     instances, 
     setInstances, 
