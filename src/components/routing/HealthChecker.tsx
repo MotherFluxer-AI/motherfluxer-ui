@@ -39,4 +39,4 @@ export const HealthChecker: React.FC<HealthCheckerProps> = ({
   }, [instance.id, checkInterval]);
 
   return null; // This is a logical component, no UI needed
-}; 
+};

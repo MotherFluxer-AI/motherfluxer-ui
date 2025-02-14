@@ -50,4 +50,4 @@ export const FailoverHandler: React.FC<FailoverHandlerProps> = ({
   }, [currentInstance.healthScore]);
 
   return null; // This is a logical component, no UI needed
-}; 
+};

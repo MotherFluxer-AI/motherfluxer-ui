@@ -18,6 +18,10 @@ export class ErrorBoundary extends React.Component<Props, State> {
     return { hasError: true };
   }
 
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Use errorInfo or remove if not needed
+  }
+
   render() {
     if (this.state.hasError) {
       return (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ModelInstance } from '@/lib/api/types';
 
 interface LoadBalancerProps {
@@ -12,10 +12,9 @@ export const LoadBalancer: React.FC<LoadBalancerProps> = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Simple round-robin implementation
-  const selectNextInstance = () => {
-    const activeInstances = instances.filter(instance => 
-      instance.isActive && instance.healthScore > 50
+  const selectNextInstance = useCallback(() => {
+    const activeInstances = instances.filter(inst => 
+      inst.isActive && inst.healthScore > 50
     );
 
     if (activeInstances.length === 0) return null;
@@ -23,14 +22,14 @@ export const LoadBalancer: React.FC<LoadBalancerProps> = ({
     const nextIndex = (currentIndex + 1) % activeInstances.length;
     setCurrentIndex(nextIndex);
     return activeInstances[nextIndex];
-  };
+  }, [instances, currentIndex]);
 
   useEffect(() => {
     const selectedInstance = selectNextInstance();
     if (selectedInstance) {
       onInstanceSelect(selectedInstance);
     }
-  }, [instances]); // Re-run when instances list changes
+  }, [selectNextInstance, onInstanceSelect]);
 
-  return null; // This is a logical component, no UI needed
+  return null;
 }; 
