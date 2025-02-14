@@ -43,21 +43,22 @@ export class ModelInstanceRepository {
    * @ai-requires: Valid instance data excluding auto-generated fields
    * @ai-affects: Instance availability and system capacity
    */
-  static async create(instance: Omit<ModelInstance, 'id' | 'registered_at' | 'last_health_check'>): Promise<ModelInstance> {
+  static async create(instance: Omit<ModelInstance, 'id'>): Promise<ModelInstance> {
     const result = await DatabaseClient.query<ModelInstance>(
       `INSERT INTO model_instances (
-        admin_id, instance_name, host_address, health_score, 
-        is_active, version, container_version
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7) 
+        model_id, instance_name, host_address, health_score, 
+        is_active, version, container_version, admin_id
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
       RETURNING *`,
       [
-        instance.admin_id,
-        instance.instance_name,
-        instance.host_address,
-        instance.health_score,
-        instance.is_active,
+        instance.modelId,
+        instance.instanceName,
+        instance.hostAddress,
+        instance.healthScore,
+        instance.isActive,
         instance.version,
-        instance.container_version
+        instance.containerVersion,
+        instance.adminId
       ]
     );
     return result.rows[0];

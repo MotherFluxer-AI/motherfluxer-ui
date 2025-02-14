@@ -5,7 +5,10 @@ export interface ModelInstance {
   hostAddress: string;
   healthScore: number;
   isActive: boolean;
-  version: string;
+  adminId?: string;
+  containerVersion?: string;
+  registeredAt?: Date;
+  lastHealthCheck?: Date;
 }
 
 export interface ApiResponse<T> {
