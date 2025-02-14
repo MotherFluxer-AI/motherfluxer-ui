@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ModelInstance } from '@/lib/api/types';
 import { ApiClient } from '@/lib/api/client';
 
@@ -13,9 +13,7 @@ export const HealthChecker: React.FC<HealthCheckerProps> = ({
   onHealthUpdate,
   checkInterval = 30000 // Default to 30 seconds
 }) => {
-  const [lastCheck, setLastCheck] = useState<Date>();
-
-  const checkHealth = async () => {
+  const checkHealth = useCallback(async () => {
     try {
       const response = await ApiClient.get<{ health: number }>(
         `/health/${instance.id}`
@@ -23,20 +21,19 @@ export const HealthChecker: React.FC<HealthCheckerProps> = ({
       
       if (response.data) {
         onHealthUpdate(response.data.health);
-        setLastCheck(new Date());
       }
     } catch (error) {
       console.error('Health check failed:', error);
       onHealthUpdate(0); // Indicate failure
     }
-  };
+  }, [instance.id, onHealthUpdate]);
 
   useEffect(() => {
     checkHealth(); // Initial check
     const interval = setInterval(checkHealth, checkInterval);
     
     return () => clearInterval(interval);
-  }, [instance.id, checkInterval]);
+  }, [checkHealth, checkInterval]);
 
   return null; // This is a logical component, no UI needed
 };

@@ -3,26 +3,26 @@ import { QueryResult } from 'pg';
 
 export class DatabaseClient {
   static async query<T>(text: string, params?: any[]): Promise<QueryResult<T>> {
-    const client = await pool.connect();
+    const dbClient = await pool.connect();
     try {
-      return await client.query(text, params);
+      return await dbClient.query(text, params);
     } finally {
-      client.release();
+      dbClient.release();
     }
   }
 
-  static async transaction<T>(callback: (client: any) => Promise<T>): Promise<T> {
-    const client = await pool.connect();
+  static async transaction<T>(callback: (dbClient: any) => Promise<T>): Promise<T> {
+    const dbClient = await pool.connect();
     try {
-      await client.query('BEGIN');
-      const result = await callback(client);
-      await client.query('COMMIT');
+      await dbClient.query('BEGIN');
+      const result = await callback(dbClient);
+      await dbClient.query('COMMIT');
       return result;
     } catch (e) {
-      await client.query('ROLLBACK');
+      await dbClient.query('ROLLBACK');
       throw e;
     } finally {
-      client.release();
+      dbClient.release();
     }
   }
 } 
