@@ -12,7 +12,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:infrastructure": "jest src/tests/infrastructure",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "pretest:infrastructure": "bash scripts/check-infrastructure.sh"
   },
   "dependencies": {
     "react": "^18.2.0",
