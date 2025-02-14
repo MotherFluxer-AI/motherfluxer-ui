@@ -24,7 +24,7 @@ export const LoadBalancer: React.FC<LoadBalancerProps> = ({
   healthThreshold = 50
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { setSelectedInstance } = useStore();
+  const { selectedInstance, setSelectedInstance } = useStore();
 
   /**
    * @ai-function: Selects next available instance using round-robin algorithm
@@ -32,17 +32,22 @@ export const LoadBalancer: React.FC<LoadBalancerProps> = ({
    * @ai-affects: Current index state and instance selection
    */
   const selectNextInstance = useCallback(() => {
-    const activeInstances = instances.filter(candidateInstance => 
-      candidateInstance.isActive && 
-      candidateInstance.healthScore > healthThreshold
+    const activeInstances = instances.filter(instance => 
+      instance.isActive && 
+      instance.healthScore > healthThreshold
     );
 
     if (activeInstances.length === 0) return null;
 
     const nextIndex = (currentIndex + 1) % activeInstances.length;
-    setCurrentIndex(nextIndex);
-    return activeInstances[nextIndex];
-  }, [instances, currentIndex, healthThreshold]);
+    const nextInstance = activeInstances[nextIndex];
+    
+    if (nextInstance.id !== selectedInstance?.id) {
+      setCurrentIndex(nextIndex);
+      return nextInstance;
+    }
+    return null;
+  }, [instances, currentIndex, healthThreshold, selectedInstance]);
 
   /**
    * @ai-function: Updates both local and global state with selected instance

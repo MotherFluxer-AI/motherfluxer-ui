@@ -45,17 +45,16 @@ export const HealthChecker: React.FC<HealthCheckerProps> = ({
       );
       
       if (response.data) {
-        // Pass the health score to the callback
-        onHealthUpdate(response.data.health);
+        const healthScore = response.data.health;
+        onHealthUpdate(healthScore);
         
-        // Log additional metrics if available
         if (response.data.metrics) {
           console.debug('Health metrics:', response.data.metrics);
         }
       }
     } catch (error) {
       console.error('Health check failed:', error);
-      onHealthUpdate(0); // Indicate complete failure
+      onHealthUpdate(0);
     }
   }, [instance.id, onHealthUpdate]);
 
