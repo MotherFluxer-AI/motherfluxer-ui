@@ -1,8 +1,23 @@
+/**
+ * @ai-context: Manages API communication with standardized response handling
+ * @ai-dependencies: ApiResponse type, environment configuration
+ * @ai-critical-points: Must handle network errors and maintain consistent response format
+ *
+ * LEARNING POINTS:
+ * 1. Implements unified error handling across all requests
+ * 2. Uses environment-based API configuration
+ */
+
 import { ApiResponse } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
 export class ApiClient {
+  /**
+   * @ai-function: Performs GET request with standardized error handling
+   * @ai-requires: Valid endpoint path and response type
+   * @ai-affects: Network state and response processing
+   */
   static async get<T>(endpoint: string): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`);
@@ -13,6 +28,11 @@ export class ApiClient {
     }
   }
 
+  /**
+   * @ai-function: Performs POST request with JSON payload
+   * @ai-requires: Valid endpoint path, request body, and response type
+   * @ai-affects: Network state, server resources, and response processing
+   */
   static async post<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {

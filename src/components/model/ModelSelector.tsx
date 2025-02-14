@@ -1,3 +1,13 @@
+/**
+ * @ai-context: Manages model selection UI and integration with global state
+ * @ai-dependencies: useStore, Model types, LoadingIndicator, ErrorMessage
+ * @ai-critical-points: Must handle model availability and selection persistence
+ *
+ * LEARNING POINTS:
+ * 1. Implements optimistic model selection with fallback
+ * 2. Maintains loading and error states independently
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import { LoadingIndicator } from '../common/LoadingIndicator';
 import { ErrorMessage } from '../common/ErrorMessage';
@@ -10,6 +20,11 @@ export function ModelSelector() {
   const [error, setError] = useState<Error | null>(null);
   const { selectedModel, setSelectedModel } = useStore();
 
+  /**
+   * @ai-function: Fetches available models and sets initial selection
+   * @ai-requires: Valid API endpoint and response format
+   * @ai-affects: Models list state and selected model in global store
+   */
   const loadModels = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -19,6 +34,7 @@ export function ModelSelector() {
       const data = await response.json();
       setModels(data);
       
+      // Auto-select first model if none selected
       if (data.length && !selectedModel) {
         setSelectedModel(data[0].id);
       }
@@ -30,6 +46,11 @@ export function ModelSelector() {
     }
   }, [selectedModel, setSelectedModel]);
 
+  /**
+   * @ai-function: Initializes model loading on component mount
+   * @ai-requires: Valid loadModels callback
+   * @ai-affects: Component initialization and model availability
+   */
   useEffect(() => {
     loadModels();
   }, [loadModels]);
