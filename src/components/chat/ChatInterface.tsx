@@ -3,7 +3,7 @@ import { LoadingIndicator } from '../common/LoadingIndicator';
 import { ErrorMessage } from '../common/ErrorMessage';
 import { useStore } from '@/lib/store';
 
-export function ChatInterface() {
+export const ChatInterface: React.FC = () => {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,4 +87,4 @@ export function ChatInterface() {
       </form>
     </div>
   );
-} 
+}; 

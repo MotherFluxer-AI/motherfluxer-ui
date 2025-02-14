@@ -3,6 +3,17 @@ interface LoadingIndicatorProps {
   size?: 'small' | 'medium';
 }
 
+export const LoadingIndicator: React.FC = () => {
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <div 
+        data-testid="loading-spinner"
+        className="animate-spin rounded-full border-2 border-gray-300 border-t-[var(--primary)] h-8 w-8"
+      />
+    </div>
+  );
+};
+
 export function LoadingIndicator({ 
   message,
   size = 'medium' 

@@ -4,7 +4,7 @@ import { LoadingIndicator } from '@/components/common/LoadingIndicator';
 describe('LoadingIndicator', () => {
   it('renders without crashing', () => {
     render(<LoadingIndicator />);
-    const loadingElement = screen.getByRole('status');
+    const loadingElement = screen.getByTestId('loading-spinner');
     expect(loadingElement).toBeInTheDocument();
   });
 }); 
