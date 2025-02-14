@@ -5,8 +5,9 @@ export interface ModelInstance {
   hostAddress: string;
   healthScore: number;
   isActive: boolean;
-  adminId?: string;
+  version: string;
   containerVersion?: string;
+  adminId?: string;
   registeredAt?: Date;
   lastHealthCheck?: Date;
 }

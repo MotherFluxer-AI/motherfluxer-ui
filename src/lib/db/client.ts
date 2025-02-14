@@ -9,7 +9,7 @@
  */
 
 import { pool } from './config';
-import { QueryResult, PoolClient } from 'pg';
+import { QueryResult, PoolClient, QueryResultRow } from 'pg';
 
 export class DatabaseClient {
   /**
@@ -17,10 +17,13 @@ export class DatabaseClient {
    * @ai-requires: Valid SQL query text and optional parameters
    * @ai-affects: Database state and connection pool availability
    */
-  static async query<T>(text: string, params?: any[]): Promise<QueryResult<T>> {
+  static async query<T extends QueryResultRow>(
+    text: string, 
+    params?: any[]
+  ): Promise<QueryResult<T>> {
     const dbClient = await pool.connect();
     try {
-      return await dbClient.query(text, params);
+      return await dbClient.query<T>(text, params);
     } finally {
       dbClient.release();
     }
