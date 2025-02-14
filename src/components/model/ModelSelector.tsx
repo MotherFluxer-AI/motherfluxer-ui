@@ -18,7 +18,7 @@ export function ModelSelector() {
   const [models, setModels] = useState<Model[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const { selectedModel, setSelectedModel } = useStore();
+  const { selectedModel, setSelectedModel, selectModelAndInstance } = useStore();
 
   /**
    * @ai-function: Fetches available models and sets initial selection
@@ -78,7 +78,7 @@ export function ModelSelector() {
         {models.map((model) => (
           <button
             key={model.id}
-            onClick={() => setSelectedModel(model.id)}
+            onClick={() => selectModelAndInstance(model.id)}
             disabled={!model.isAvailable}
             className={`p-4 rounded-lg border ${
               selectedModel === model.id 

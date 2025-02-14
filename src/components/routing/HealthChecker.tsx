@@ -11,6 +11,7 @@
 import { useEffect, useCallback } from 'react';
 import { ModelInstance } from '@/lib/api/types';
 import { ApiClient } from '@/lib/api/client';
+import { useStore } from '@/lib/store';
 
 interface HealthCheckerProps {
   instance: ModelInstance;
@@ -20,7 +21,7 @@ interface HealthCheckerProps {
 
 interface HealthResponse {
   health: number;
-  timestamp?: string;
+  timestamp: string;
   metrics?: {
     latency: number;
     errorRate: number;
@@ -33,10 +34,12 @@ export const HealthChecker: React.FC<HealthCheckerProps> = ({
   onHealthUpdate,
   checkInterval = 30000 // Default to 30 seconds
 }) => {
+  const { updateInstanceHealth } = useStore();
+
   /**
    * @ai-function: Performs health check for a specific instance
    * @ai-requires: Valid instance ID and API endpoint availability
-   * @ai-affects: Instance health score through callback
+   * @ai-affects: Instance health score through callback and store
    */
   const checkHealth = useCallback(async () => {
     try {
@@ -46,17 +49,26 @@ export const HealthChecker: React.FC<HealthCheckerProps> = ({
       
       if (response.data) {
         const healthScore = response.data.health;
-        onHealthUpdate(healthScore);
         
-        if (response.data.metrics) {
+        // Update both local handler and global store
+        onHealthUpdate(healthScore);
+        updateInstanceHealth(instance.id, healthScore);
+
+        if (process.env.NODE_ENV === 'development' && response.data.metrics) {
+          // Only log metrics in development
           console.debug('Health metrics:', response.data.metrics);
         }
       }
     } catch (error) {
-      console.error('Health check failed:', error);
+      // On failure, set health to 0 and log error
       onHealthUpdate(0);
+      updateInstanceHealth(instance.id, 0);
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Health check failed:', error);
+      }
     }
-  }, [instance.id, onHealthUpdate]);
+  }, [instance.id, onHealthUpdate, updateInstanceHealth]);
 
   /**
    * @ai-function: Sets up and manages periodic health check interval

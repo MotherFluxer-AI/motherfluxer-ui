@@ -1,6 +1,6 @@
 /**
  * @ai-context: Monitors instance health and triggers failover when needed
- * @ai-dependencies: ModelInstance, React hooks
+ * @ai-dependencies: ModelInstance, React hooks, Store
  * @ai-critical-points: Must prevent cascading failures and maintain system stability
  *
  * LEARNING POINTS:
@@ -10,6 +10,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { ModelInstance } from '@/lib/api/types';
+import { useStore } from '@/lib/store';
 
 interface FailoverHandlerProps {
   instances: ModelInstance[];
@@ -25,6 +26,7 @@ export const FailoverHandler: React.FC<FailoverHandlerProps> = ({
   healthThreshold = 50
 }) => {
   const [failureCount, setFailureCount] = useState(0);
+  const { instanceHealth } = useStore();
   const MAX_FAILURES = 3;
 
   /**
@@ -34,25 +36,34 @@ export const FailoverHandler: React.FC<FailoverHandlerProps> = ({
    */
   const findHealthyInstance = useCallback((): ModelInstance | null => {
     return instances
-      .filter(candidateInstance => 
-        candidateInstance.id !== currentInstance.id &&
-        candidateInstance.isActive &&
-        candidateInstance.healthScore > healthThreshold
+      .filter(instance => 
+        instance.id !== currentInstance.id &&
+        instance.isActive &&
+        (instanceHealth[instance.id] || instance.healthScore) > healthThreshold
       )
-      .sort((a, b) => b.healthScore - a.healthScore)[0] || null;
-  }, [instances, currentInstance.id, healthThreshold]);
+      .sort((a, b) => 
+        (instanceHealth[b.id] || b.healthScore) - 
+        (instanceHealth[a.id] || a.healthScore)
+      )[0] || null;
+  }, [instances, currentInstance.id, healthThreshold, instanceHealth]);
 
   /**
-   * @ai-function: Increments failure counter for tracking instance health
-   * @ai-requires: None
-   * @ai-affects: Failure count state which triggers failover
+   * @ai-function: Monitors current instance health and manages failure tracking
+   * @ai-requires: Valid health threshold and current instance health score
+   * @ai-affects: Failure count state and failover triggering
    */
-  const handleFailure = useCallback(() => {
-    setFailureCount(prev => prev + 1);
-  }, []);
+  useEffect(() => {
+    const currentHealth = instanceHealth[currentInstance.id] || currentInstance.healthScore;
+    
+    if (currentHealth < healthThreshold) {
+      setFailureCount(prev => prev + 1);
+    } else {
+      setFailureCount(0);
+    }
+  }, [currentInstance.id, instanceHealth, healthThreshold, currentInstance.healthScore]);
 
   /**
-   * @ai-function: Monitors failure count and triggers failover when threshold reached
+   * @ai-function: Triggers failover when failure threshold is reached
    * @ai-requires: Valid failure count and healthy instance availability
    * @ai-affects: System stability through instance failover
    */
@@ -65,19 +76,6 @@ export const FailoverHandler: React.FC<FailoverHandlerProps> = ({
       }
     }
   }, [failureCount, findHealthyInstance, onFailover]);
-
-  /**
-   * @ai-function: Monitors instance health and manages failure tracking
-   * @ai-requires: Valid health threshold and current instance health score
-   * @ai-affects: Failure count state and failover triggering
-   */
-  useEffect(() => {
-    if (currentInstance.healthScore < healthThreshold) {
-      handleFailure();
-    } else {
-      setFailureCount(0);
-    }
-  }, [currentInstance.healthScore, healthThreshold, handleFailure]);
 
   return null; // This is a logical component, no UI needed
 };

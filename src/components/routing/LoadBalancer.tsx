@@ -14,7 +14,7 @@ import { useStore } from '@/lib/store';
 
 interface LoadBalancerProps {
   instances: ModelInstance[];
-  onInstanceSelect: (selectedInstance: ModelInstance) => void;
+  onInstanceSelect: (instance: ModelInstance) => void;
   healthThreshold?: number;
 }
 
@@ -24,7 +24,7 @@ export const LoadBalancer: React.FC<LoadBalancerProps> = ({
   healthThreshold = 50
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { selectedInstance, setSelectedInstance } = useStore();
+  const { instanceHealth } = useStore();
 
   /**
    * @ai-function: Selects next available instance using round-robin algorithm
@@ -34,7 +34,7 @@ export const LoadBalancer: React.FC<LoadBalancerProps> = ({
   const selectNextInstance = useCallback(() => {
     const activeInstances = instances.filter(instance => 
       instance.isActive && 
-      instance.healthScore > healthThreshold
+      (instanceHealth[instance.id] || instance.healthScore) > healthThreshold
     );
 
     if (activeInstances.length === 0) return null;
@@ -42,25 +42,40 @@ export const LoadBalancer: React.FC<LoadBalancerProps> = ({
     const nextIndex = (currentIndex + 1) % activeInstances.length;
     const nextInstance = activeInstances[nextIndex];
     
-    if (nextInstance.id !== selectedInstance?.id) {
-      setCurrentIndex(nextIndex);
-      return nextInstance;
-    }
-    return null;
-  }, [instances, currentIndex, healthThreshold, selectedInstance]);
+    setCurrentIndex(nextIndex);
+    return nextInstance;
+  }, [instances, currentIndex, healthThreshold, instanceHealth]);
 
   /**
-   * @ai-function: Updates both local and global state with selected instance
-   * @ai-requires: Valid instance selection from selectNextInstance
-   * @ai-affects: Global store state and parent component state
+   * @ai-function: Periodically checks for better instance selection
+   * @ai-requires: Valid instances array and health scores
+   * @ai-affects: Instance selection
    */
   useEffect(() => {
-    const selectedInstance = selectNextInstance();
-    if (selectedInstance) {
-      onInstanceSelect(selectedInstance);
-      setSelectedInstance(selectedInstance);
-    }
-  }, [selectNextInstance, onInstanceSelect, setSelectedInstance]);
+    const interval = setInterval(() => {
+      const nextInstance = selectNextInstance();
+      if (nextInstance) {
+        onInstanceSelect(nextInstance);
+      }
+    }, 60000); // Check every minute
 
+    return () => clearInterval(interval);
+  }, [selectNextInstance, onInstanceSelect]);
+
+  /**
+   * @ai-function: Initial instance selection
+   * @ai-requires: Valid instances array
+   * @ai-affects: Instance selection
+   */
+  useEffect(() => {
+    if (instances.length > 0) {
+      const initialInstance = selectNextInstance();
+      if (initialInstance) {
+        onInstanceSelect(initialInstance);
+      }
+    }
+  }, [instances, selectNextInstance, onInstanceSelect]);
+
+  // This is a logical component, no UI needed
   return null;
 }; 

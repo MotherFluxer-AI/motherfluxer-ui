@@ -10,42 +10,63 @@ import { LoadBalancer } from './LoadBalancer';
 import { HealthChecker } from './HealthChecker';
 import { FailoverHandler } from './FailoverHandler';
 import { useStore } from '@/lib/store';
+import { ApiClient } from '@/lib/api/client';
 
 export const RoutingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [instances, setInstances] = useState<ModelInstance[]>([]);
-  const [currentInstance, setCurrentInstance] = useState<ModelInstance | null>(null);
-  const { setSelectedInstance } = useStore();
+  const { 
+    instances, 
+    setInstances, 
+    selectedInstance,
+    setSelectedInstance,
+    updateInstanceHealth 
+  } = useStore();
 
+  /**
+   * @ai-function: Fetches and initializes available instances
+   * @ai-affects: Global instance state
+   */
   useEffect(() => {
-    // Fetch instances from API
     const fetchInstances = async () => {
       try {
-        const response = await fetch('/api/instances');
-        const data = await response.json();
-        setInstances(data);
+        const response = await ApiClient.get<ModelInstance[]>('/api/instances');
+        if (response.data) {
+          setInstances(response.data);
+        }
       } catch (error) {
         console.error('Failed to fetch instances:', error);
       }
     };
     fetchInstances();
-  }, []);
+  }, [setInstances]);
 
+  /**
+   * @ai-function: Handles instance selection from LoadBalancer
+   * @ai-affects: Selected instance state
+   */
   const handleInstanceSelect = useCallback((instance: ModelInstance) => {
-    setCurrentInstance(instance);
     setSelectedInstance(instance);
   }, [setSelectedInstance]);
 
+  /**
+   * @ai-function: Updates instance health in global state
+   * @ai-affects: Instance health tracking
+   */
   const handleHealthUpdate = useCallback((healthScore: number) => {
-    if (currentInstance) {
-      // Update instance health
+    if (selectedInstance) {
+      updateInstanceHealth(selectedInstance.id, healthScore);
     }
-  }, [currentInstance]);
+  }, [selectedInstance, updateInstanceHealth]);
 
+  /**
+   * @ai-function: Handles failover to new instance
+   * @ai-affects: Selected instance state
+   */
   const handleFailover = useCallback((instance: ModelInstance) => {
     handleInstanceSelect(instance);
   }, [handleInstanceSelect]);
 
-  if (!currentInstance) return <>{children}</>;
+  // Don't render routing components until we have instances
+  if (instances.length === 0) return <>{children}</>;
 
   return (
     <>
@@ -53,15 +74,19 @@ export const RoutingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         instances={instances}
         onInstanceSelect={handleInstanceSelect}
       />
-      <HealthChecker
-        instance={currentInstance}
-        onHealthUpdate={handleHealthUpdate}
-      />
-      <FailoverHandler
-        instances={instances}
-        currentInstance={currentInstance}
-        onFailover={handleFailover}
-      />
+      {selectedInstance && (
+        <>
+          <HealthChecker
+            instance={selectedInstance}
+            onHealthUpdate={handleHealthUpdate}
+          />
+          <FailoverHandler
+            instances={instances}
+            currentInstance={selectedInstance}
+            onFailover={handleFailover}
+          />
+        </>
+      )}
       {children}
     </>
   );

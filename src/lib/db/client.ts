@@ -31,18 +31,18 @@ export class DatabaseClient {
    * @ai-requires: Valid transaction callback that returns a promise
    * @ai-affects: Database transaction state and connection lifecycle
    */
-  static async transaction<T>(callback: (dbClient: PoolClient) => Promise<T>): Promise<T> {
-    const dbClient = await pool.connect();
+  static async transaction<T>(callback: (client: PoolClient) => Promise<T>): Promise<T> {
+    const client = await pool.connect();
     try {
-      await dbClient.query('BEGIN');
-      const result = await callback(dbClient);
-      await dbClient.query('COMMIT');
+      await client.query('BEGIN');
+      const result = await callback(client);
+      await client.query('COMMIT');
       return result;
     } catch (error) {
-      await dbClient.query('ROLLBACK');
+      await client.query('ROLLBACK');
       throw error;
     } finally {
-      dbClient.release();
+      client.release();
     }
   }
 } 

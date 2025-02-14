@@ -13,6 +13,19 @@ import { ModelInstance } from '@/lib/api/types';
 
 export class ModelInstanceRepository {
   /**
+   * @ai-function: Retrieves all active model instances for a specific model
+   * @ai-requires: Valid model ID
+   * @ai-affects: Load balancing and instance selection
+   */
+  static async findByModelId(modelId: string): Promise<ModelInstance[]> {
+    const result = await DatabaseClient.query<ModelInstance>(
+      'SELECT * FROM model_instances WHERE model_id = $1 AND is_active = true',
+      [modelId]
+    );
+    return result.rows;
+  }
+
+  /**
    * @ai-function: Retrieves a single model instance by its ID
    * @ai-requires: Valid UUID for instance identification
    * @ai-affects: Database read operations
@@ -23,18 +36,6 @@ export class ModelInstanceRepository {
       [id]
     );
     return result.rows[0] || null;
-  }
-
-  /**
-   * @ai-function: Retrieves all active model instances ordered by health
-   * @ai-requires: None
-   * @ai-affects: Load balancing and instance selection
-   */
-  static async findActive(): Promise<ModelInstance[]> {
-    const result = await DatabaseClient.query<ModelInstance>(
-      'SELECT * FROM model_instances WHERE is_active = true ORDER BY health_score DESC'
-    );
-    return result.rows;
   }
 
   /**
@@ -70,7 +71,8 @@ export class ModelInstanceRepository {
   static async updateHealth(id: string, healthScore: number): Promise<void> {
     await DatabaseClient.query(
       `UPDATE model_instances 
-       SET health_score = $2, last_health_check = CURRENT_TIMESTAMP 
+       SET health_score = $2, 
+           last_health_check = CURRENT_TIMESTAMP 
        WHERE id = $1`,
       [id, healthScore]
     );

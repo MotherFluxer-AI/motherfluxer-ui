@@ -1,5 +1,6 @@
 export interface ModelInstance {
   id: string;
+  modelId: string;
   instanceName: string;
   hostAddress: string;
   healthScore: number;

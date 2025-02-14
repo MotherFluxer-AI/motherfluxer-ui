@@ -10,51 +10,57 @@
 
 import { create } from 'zustand';
 import type { ModelInstance } from './api/types';
-import type { Message, Model } from './types';
+import type { Message } from './types';
 
-// Remove unused interfaces or mark them for future use with @ts-expect-error
-interface StoreState {
-  /**
-   * @ai-function: Instance Management Section
-   * @ai-requires: Valid ModelInstance objects
-   * @ai-affects: Global instance availability and selection state
-   */
+// Separate interfaces for better organization
+interface InstanceState {
   instances: ModelInstance[];
   selectedInstance: ModelInstance | null;
-  setInstances: (instances: ModelInstance[]) => void;
-  setSelectedInstance: (instance: ModelInstance | null) => void;
-  
-  /**
-   * @ai-function: Chat Management Section
-   * @ai-requires: Valid Message objects and model IDs
-   * @ai-affects: Chat history and model selection state
-   */
-  messages: Message[];
-  selectedModel: string | null;
-  addMessage: (message: Omit<Message, 'id' | 'timestamp'>) => void;
-  setSelectedModel: (modelId: string | null) => void;
+  instanceHealth: Record<string, number>;  // Track health by instance ID
 }
 
-export const useStore = create<StoreState>((set) => ({
+interface ChatState {
+  messages: Message[];
+  selectedModel: string | null;
+}
+
+interface StoreState extends InstanceState, ChatState {
   // Instance Management
-  instances: [],
-  selectedInstance: null,
-  /**
-   * @ai-function: Updates the list of available instances
-   * @ai-requires: Array of valid ModelInstance objects
-   * @ai-affects: Global instance availability
-   */
-  setInstances: (instances) => set({ instances }),
-  setSelectedInstance: (instance) => set({ selectedInstance: instance }),
+  setInstances: (instances: ModelInstance[]) => void;
+  setSelectedInstance: (instance: ModelInstance | null) => void;
+  updateInstanceHealth: (instanceId: string, health: number) => void;
+  getInstancesForModel: (modelId: string) => ModelInstance[];
   
   // Chat Management
+  addMessage: (message: Omit<Message, 'id' | 'timestamp'>) => void;
+  setSelectedModel: (modelId: string | null) => void;
+  selectModelAndInstance: (modelId: string) => void;
+}
+
+export const useStore = create<StoreState>((set, get) => ({
+  // Instance State
+  instances: [],
+  selectedInstance: null,
+  instanceHealth: {},
+
+  // Chat State
   messages: [],
   selectedModel: null,
-  /**
-   * @ai-function: Adds a new message to chat history
-   * @ai-requires: Message content and sender information
-   * @ai-affects: Chat message history with auto-generated id and timestamp
-   */
+
+  // Instance Management Actions
+  setInstances: (instances) => set({ instances }),
+  setSelectedInstance: (instance) => set({ selectedInstance: instance }),
+  updateInstanceHealth: (instanceId, health) => 
+    set((state) => ({
+      instanceHealth: {
+        ...state.instanceHealth,
+        [instanceId]: health
+      }
+    })),
+  getInstancesForModel: (modelId) => 
+    get().instances.filter(instance => instance.modelId === modelId),
+
+  // Chat Management Actions
   addMessage: (message) => set((state) => ({
     messages: [...state.messages, {
       id: crypto.randomUUID(),
@@ -62,5 +68,17 @@ export const useStore = create<StoreState>((set) => ({
       ...message
     }]
   })),
-  setSelectedModel: (modelId) => set({ selectedModel: modelId })
+  setSelectedModel: (modelId) => set({ selectedModel: modelId }),
+  selectModelAndInstance: (modelId) => set((state) => {
+    const modelInstances = state.getInstancesForModel(modelId);
+    const bestInstance = modelInstances.find(instance => 
+      instance.isActive && 
+      (state.instanceHealth[instance.id] || instance.healthScore) > 50
+    );
+    
+    return {
+      selectedModel: modelId,
+      selectedInstance: bestInstance || null
+    };
+  })
 })); 

@@ -48,4 +48,12 @@ export class ApiClient {
       return { error: (error as Error).message, status: 500 };
     }
   }
+
+  static async getInstances(modelId: string): Promise<ApiResponse<ModelInstance[]>> {
+    return this.get<ModelInstance[]>(`/instances/${modelId}`);
+  }
+
+  static async getInstanceHealth(instanceId: string): Promise<ApiResponse<number>> {
+    return this.get<number>(`/health/${instanceId}`);
+  }
 } 
