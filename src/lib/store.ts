@@ -12,6 +12,6 @@ interface StoreState {
 export const useStore = create<StoreState>((set) => ({
   instances: [],
   selectedInstance: null,
-  setInstances: (newInstances) => set({ instances: newInstances }),
-  setSelectedInstance: (newInstance) => set({ selectedInstance: newInstance }),
+  setInstances: (newInstances: ModelInstance[]) => set({ instances: newInstances }),
+  setSelectedInstance: (newInstance: ModelInstance | null) => set({ selectedInstance: newInstance })
 })); 

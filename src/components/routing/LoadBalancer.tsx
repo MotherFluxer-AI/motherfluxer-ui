@@ -3,7 +3,7 @@ import { ModelInstance } from '@/lib/api/types';
 
 interface LoadBalancerProps {
   instances: ModelInstance[];
-  onInstanceSelect: (instance: ModelInstance) => void;
+  onInstanceSelect: (selectedInstance: ModelInstance) => void;
 }
 
 export const LoadBalancer: React.FC<LoadBalancerProps> = ({ 

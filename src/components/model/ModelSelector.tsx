@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { LoadingIndicator } from '../common/LoadingIndicator';
 import { ErrorMessage } from '../common/ErrorMessage';
 import { useStore } from '@/lib/store';
@@ -10,11 +10,7 @@ export function ModelSelector() {
   const [error, setError] = useState<Error | null>(null);
   const { selectedModel, setSelectedModel } = useStore();
 
-  useEffect(() => {
-    loadModels();
-  }, []);
-
-  const loadModels = async () => {
+  const loadModels = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
@@ -32,7 +28,11 @@ export function ModelSelector() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedModel, setSelectedModel]);
+
+  useEffect(() => {
+    loadModels();
+  }, [loadModels]);
 
   if (isLoading) {
     return <LoadingIndicator message="Loading models..." />;
