@@ -8,7 +8,7 @@
  * 2. Uses environment-based API configuration
  */
 
-import { ApiResponse } from './types';
+import { ApiResponse, ModelInstance } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
