@@ -5,13 +5,15 @@ import { useStore } from '@/lib/store';
 
 export const ChatInterface: React.FC = () => {
   const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [messages, setMessages] = useState<string[]>([]);
   const { selectedModel, addMessage } = useStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!message.trim()) return;
+
     setIsLoading(true);
     setError('');
 
@@ -19,12 +21,12 @@ export const ChatInterface: React.FC = () => {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ message: message.trim() })
       });
 
-      if (!response.ok) throw new Error('Failed to send message');
-
-      setMessages(prev => [...prev, message]);
+      const data = await response.json();
+      
+      setMessages(prev => [...prev, message, data.response]);
       setMessage('');
     } catch (err) {
       setError('Error sending message');
