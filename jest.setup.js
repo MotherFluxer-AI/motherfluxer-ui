@@ -5,7 +5,12 @@ import '@testing-library/jest-dom'
 const originalError = console.error
 beforeAll(() => {
   console.error = (...args) => {
-    if (args[0]?.includes('ReactDOMTestUtils.act')) {
+    // Check if first argument is a string before trying to use includes
+    if (typeof args[0] === 'string' && args[0].includes('ReactDOMTestUtils.act')) {
+      return
+    }
+    // Don't suppress error boundary errors during tests
+    if (typeof args[0] === 'string' && args[0].includes('The above error occurred')) {
       return
     }
     originalError.call(console, ...args)
