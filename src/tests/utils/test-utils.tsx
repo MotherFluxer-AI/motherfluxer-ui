@@ -1,6 +1,14 @@
 import React from 'react'
-import { render as rtlRender } from '@testing-library/react'
+import { render } from '@testing-library/react'
+import { act } from 'react'
 import type { RenderOptions } from '@testing-library/react'
+
+// Custom render function that uses React.act
+const customRender = (ui: React.ReactElement, options = {}) => {
+  return act(async () => {
+    render(ui, options)
+  })
+}
 
 // Add custom render function that includes providers
 function render(
@@ -20,4 +28,4 @@ function render(
 export * from '@testing-library/react'
 
 // Override render method
-export { render } 
+export { customRender as render } 
