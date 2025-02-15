@@ -15,11 +15,13 @@ global.fetch = jest.fn(() =>
 global.TextEncoder = NodeTextEncoder as typeof global.TextEncoder;
 global.TextDecoder = NodeTextDecoder as typeof global.TextDecoder;
 
-// Set test environment
-process.env.NODE_ENV = 'test';
-
 // Load environment variables
 dotenv.config();
+
+// Verify we're in test mode
+if (process.env.NODE_ENV !== 'test') {
+  console.warn('Tests should be run with NODE_ENV=test');
+}
 
 // Clean up after each test
 afterEach(() => {
