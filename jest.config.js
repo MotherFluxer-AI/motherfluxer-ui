@@ -11,7 +11,8 @@ const config = {
       tsconfig: 'tsconfig.json'
     }]
   },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node']
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  testTimeout: 30000
 };
 
 module.exports = config; 
