@@ -1,12 +1,12 @@
 import { Pool, PoolConfig } from 'pg';
 
-const isTest = process.env.NODE_ENV === 'test';
-
 const dbConfig: PoolConfig = {
   user: 'postgres',
   password: 'password',
-  // Force localhost in test environment
-  host: isTest ? 'localhost' : (process.env.DB_HOST || 'localhost'),
+  // Use localhost if NODE_ENV is test or if DB_HOST is not set
+  host: process.env.NODE_ENV === 'test' || !process.env.DB_HOST 
+    ? 'localhost' 
+    : process.env.DB_HOST,
   port: 5432,
   database: 'motherfluxer',
   idleTimeoutMillis: 10000,
@@ -16,7 +16,8 @@ const dbConfig: PoolConfig = {
 
 console.log('Database config:', {
   ...dbConfig,
-  password: '[REDACTED]' // Don't log the password
+  password: '[REDACTED]',
+  host: dbConfig.host // Log the host we're using
 });
 
 const pool = new Pool(dbConfig);
