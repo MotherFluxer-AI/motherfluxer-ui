@@ -7,12 +7,19 @@ const dbConfig: PoolConfig = {
   port: 5432,
   database: 'motherfluxer',
   idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 5000,
+  max: 1
 };
 
-export const pool = new Pool(dbConfig);
+const pool = new Pool(dbConfig);
 
-// Error handling
+// Add error logging
 pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
-  process.exit(-1);
-}); 
+});
+
+pool.on('connect', () => {
+  console.log('Connected to database');
+});
+
+export { pool }; 
