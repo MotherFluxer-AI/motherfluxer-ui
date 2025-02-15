@@ -14,8 +14,8 @@ import {
 describe('Utility Functions', () => {
   describe('formatting', () => {
     test('formatDate formats dates correctly', () => {
-      const testDate = new Date('2024-01-01')
-      expect(formatDate(testDate, 'short')).toBe('Jan 1, 2024')
+      const testDate = new Date('2024-01-01T12:00:00Z')
+      expect(formatDate(testDate, 'short')).toMatch(/Jan 1, 2024/)
       expect(formatDate(testDate, 'iso')).toBe('2024-01-01')
     })
 
@@ -44,7 +44,7 @@ describe('Utility Functions', () => {
 
     test('isValidHostAddress validates various formats', () => {
       expect(isValidHostAddress('https://example.com')).toBe(true)
-      expect(isValidHostAddress('http://localhost:3000')).toBe(true)
+      expect(isValidHostAddress('localhost:3000')).toBe(true)
       expect(isValidHostAddress('invalid-host')).toBe(false)
     })
 

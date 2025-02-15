@@ -4,6 +4,24 @@ export const isValidEmail = (email: string): boolean => {
 };
 
 export const isValidHostAddress = (host: string): boolean => {
-  const hostRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/;
-  return hostRegex.test(host);
-}; 
+  // Allow localhost with port
+  if (host.startsWith('localhost:')) {
+    const port = parseInt(host.split(':')[1])
+    return !isNaN(port) && port > 0 && port < 65536
+  }
+
+  // Allow URLs
+  try {
+    new URL(host)
+    return true
+  } catch {
+    return false
+  }
+}
+
+export const validateRequestPayload = (payload: any): boolean => {
+  if (!payload) return false
+  if (typeof payload.message !== 'string' || !payload.message) return false
+  if (!payload.timestamp || typeof payload.timestamp !== 'number') return false
+  return true
+} 
