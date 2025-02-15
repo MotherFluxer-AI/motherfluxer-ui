@@ -1,14 +1,11 @@
 // Import jest-dom
 import '@testing-library/jest-dom'
 
-// Silence the act() warning
+// Silence specific React warnings
 const originalError = console.error
 beforeAll(() => {
   console.error = (...args) => {
-    if (/Warning.*not wrapped in act/.test(args[0])) {
-      return
-    }
-    if (/Warning.*ReactDOM.act/.test(args[0])) {
+    if (args[0]?.includes('ReactDOMTestUtils.act')) {
       return
     }
     originalError.call(console, ...args)
