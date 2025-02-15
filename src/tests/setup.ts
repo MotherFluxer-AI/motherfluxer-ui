@@ -15,6 +15,7 @@
 import '@testing-library/jest-dom';
 import { TextEncoder as NodeTextEncoder, TextDecoder as NodeTextDecoder } from 'util';
 import dotenv from 'dotenv';
+import { server } from './mocks/server';
 
 // Load environment variables first
 dotenv.config();
@@ -40,4 +41,23 @@ if (process.env.NODE_ENV !== 'test') {
 // Clean up after each test
 afterEach(() => {
   jest.clearAllMocks();
-}); 
+  server.resetHandlers();
+});
+
+// Establish API mocking before all tests
+beforeAll(() => server.listen());
+
+// Clean up after the tests are finished.
+afterAll(() => server.close());
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor(callback: Function, options: Object) {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+  takeRecords() { return [] }
+} as any;
+
+// Mock window.fetch
+global.fetch = jest.fn(); 
