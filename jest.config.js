@@ -42,6 +42,7 @@ const customJestConfig = {
       statements: 70,
     },
   },
+  setupFiles: ['<rootDir>/src/tests/setImmediate.ts'],
 }
 
 module.exports = createJestConfig(customJestConfig) 
