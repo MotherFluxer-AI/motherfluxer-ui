@@ -1,11 +1,11 @@
 import { Pool, PoolConfig } from 'pg';
 
 const dbConfig: PoolConfig = {
-  host: process.env.DB_HOST,
+  user: 'postgres',
+  password: 'password',
+  host: process.env.DB_HOST || 'localhost',
   port: 5432,
-  ssl: true,
-  max: 5,
-  min: 0,
+  database: 'motherfluxer',
   idleTimeoutMillis: 10000,
 };
 
