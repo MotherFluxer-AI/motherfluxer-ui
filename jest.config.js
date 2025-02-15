@@ -1,8 +1,8 @@
 /** @type {import('jest').Config} */
 const config = {
   preset: 'ts-jest',
-  setupFilesAfterEnv: ['<rootDir>/src/tests/setup.ts'],
   testEnvironment: 'node',
+  setupFilesAfterEnv: ['<rootDir>/src/tests/setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1'
   },
@@ -12,7 +12,12 @@ const config = {
     }]
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  testTimeout: 30000
+  testTimeout: 30000,
+  globals: {
+    'ts-jest': {
+      tsconfig: 'tsconfig.json'
+    }
+  }
 };
 
 module.exports = config; 
