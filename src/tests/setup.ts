@@ -15,6 +15,9 @@ global.fetch = jest.fn(() =>
 global.TextEncoder = NodeTextEncoder as typeof global.TextEncoder;
 global.TextDecoder = NodeTextDecoder as typeof global.TextDecoder;
 
+// Set test environment
+process.env.NODE_ENV = 'test';
+
 // Load environment variables
 dotenv.config();
 

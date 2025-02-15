@@ -1,15 +1,23 @@
 import { Pool, PoolConfig } from 'pg';
 
+const isTest = process.env.NODE_ENV === 'test';
+
 const dbConfig: PoolConfig = {
   user: 'postgres',
   password: 'password',
-  host: process.env.DB_HOST || 'localhost',
+  // Force localhost in test environment
+  host: isTest ? 'localhost' : (process.env.DB_HOST || 'localhost'),
   port: 5432,
   database: 'motherfluxer',
   idleTimeoutMillis: 10000,
   connectionTimeoutMillis: 5000,
   max: 1
 };
+
+console.log('Database config:', {
+  ...dbConfig,
+  password: '[REDACTED]' // Don't log the password
+});
 
 const pool = new Pool(dbConfig);
 
