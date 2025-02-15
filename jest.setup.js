@@ -1,3 +1,6 @@
+// Import jest-dom
+import '@testing-library/jest-dom'
+
 // Silence the act() warning
 const originalError = console.error
 beforeAll(() => {
