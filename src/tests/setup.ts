@@ -2,7 +2,14 @@ import '@testing-library/jest-dom';
 import { TextEncoder as NodeTextEncoder, TextDecoder as NodeTextDecoder } from 'util';
 import dotenv from 'dotenv';
 
-// Mock fetch globally
+// Load environment variables first
+dotenv.config();
+
+// Set up text encoder/decoder
+global.TextEncoder = NodeTextEncoder as typeof global.TextEncoder;
+global.TextDecoder = NodeTextDecoder as typeof global.TextDecoder;
+
+// Mock fetch
 global.fetch = jest.fn(() =>
   Promise.resolve({
     json: () => Promise.resolve({}),
@@ -10,13 +17,6 @@ global.fetch = jest.fn(() =>
     status: 200,
   })
 ) as jest.Mock;
-
-// Use type assertions to handle the type mismatch
-global.TextEncoder = NodeTextEncoder as typeof global.TextEncoder;
-global.TextDecoder = NodeTextDecoder as typeof global.TextDecoder;
-
-// Load environment variables
-dotenv.config();
 
 // Verify we're in test mode
 if (process.env.NODE_ENV !== 'test') {
