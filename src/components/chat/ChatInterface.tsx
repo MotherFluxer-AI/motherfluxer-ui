@@ -35,26 +35,15 @@ export const ChatInterface: React.FC = () => {
 
   return (
     <div className="w-full max-w-2xl mx-auto p-4">
-      <div data-testid="message-container" className="mb-4 space-y-4">
-        {messages.map((msg, i) => (
-          <div key={i} className="p-2 bg-gray-100 rounded">
+      <div className="mb-4 space-y-4" data-testid="message-container">
+        {messages.map((msg, index) => (
+          <div key={index} className="p-2 bg-gray-100 rounded">
             {msg}
           </div>
         ))}
       </div>
-
-      {error && (
-        <div className="text-red-500 mb-4">
-          {error}
-        </div>
-      )}
-
-      {isLoading && (
-        <div data-testid="loading-indicator" className="mb-4">
-          Loading...
-        </div>
-      )}
-
+      {error && <div className="text-red-500 mb-4">{error}</div>}
+      {isLoading && <div data-testid="loading-spinner" className="mb-4">Loading...</div>}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <textarea
           value={message}
