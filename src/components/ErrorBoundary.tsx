@@ -26,6 +26,6 @@ export class ErrorBoundary extends Component<Props, State> {
       return <div>Something went wrong</div>
     }
 
-    return this.children
+    return this.props.children
   }
 } 
