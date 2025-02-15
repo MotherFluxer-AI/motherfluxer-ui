@@ -1,3 +1,17 @@
+/**
+ * @ai-context: Test environment setup and configuration
+ * @ai-dependencies: jest-dom, dotenv, util
+ * @ai-critical-points: 
+ * - Environment variables must be loaded before any tests
+ * - TextEncoder/Decoder must be set up for database tests
+ * - Environment variables should never be modified in code
+ *
+ * LEARNING POINTS:
+ * 1. Environment variables should be set before process starts
+ * 2. Use cross-env for environment variable setting
+ * 3. Keep setup minimal and focused
+ */
+
 import '@testing-library/jest-dom';
 import { TextEncoder as NodeTextEncoder, TextDecoder as NodeTextDecoder } from 'util';
 import dotenv from 'dotenv';

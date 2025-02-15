@@ -1,3 +1,17 @@
+/**
+ * @ai-context: Database infrastructure testing
+ * @ai-dependencies: DatabaseClient, pool configuration
+ * @ai-critical-points:
+ * - Must clean up database connections after tests
+ * - Uses environment-specific configuration
+ * - Requires proper connection timeout handling
+ *
+ * LEARNING POINTS:
+ * 1. Always clean up database connections
+ * 2. Use beforeAll/afterAll for connection management
+ * 3. Include proper error handling and logging
+ */
+
 import { DatabaseClient, pool } from '@/lib/db/client';
 
 describe('Database Infrastructure', () => {
