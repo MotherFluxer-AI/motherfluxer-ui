@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
-import { TextEncoder, TextDecoder } from 'util';
+import { TextEncoder as NodeTextEncoder, TextDecoder as NodeTextDecoder } from 'util';
+import dotenv from 'dotenv';
 
 // Mock fetch globally
 global.fetch = jest.fn(() =>
@@ -10,8 +11,12 @@ global.fetch = jest.fn(() =>
   })
 ) as jest.Mock;
 
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder;
+// Use type assertions to handle the type mismatch
+global.TextEncoder = NodeTextEncoder as typeof global.TextEncoder;
+global.TextDecoder = NodeTextDecoder as typeof global.TextDecoder;
+
+// Load environment variables
+dotenv.config();
 
 // Clean up after each test
 afterEach(() => {
