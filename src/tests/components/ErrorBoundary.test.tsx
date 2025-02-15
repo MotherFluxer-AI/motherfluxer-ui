@@ -2,6 +2,18 @@ import { render, screen } from '../utils/test-utils';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 
 describe('ErrorBoundary', () => {
+  const originalError = console.error
+  beforeAll(() => {
+    console.error = (...args: any[]) => {
+      if (args[0]?.includes('The above error occurred')) return
+      originalError(...args)
+    }
+  })
+
+  afterAll(() => {
+    console.error = originalError
+  })
+
   it('renders children when there is no error', async () => {
     await render(
       <ErrorBoundary>
