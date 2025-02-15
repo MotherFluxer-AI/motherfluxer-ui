@@ -42,14 +42,5 @@
     "tailwindcss": "^3.4.1",
     "prettier": "^3.2.0",
     "prettier-plugin-tailwindcss": "^0.5.11"
-  },
-  "jest": {
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/tests/setup.ts"
-    ],
-    "testEnvironment": "node",
-    "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/src/$1"
-    }
   }
 }
