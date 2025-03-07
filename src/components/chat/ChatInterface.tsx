@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { LoadingIndicator } from '../common/LoadingIndicator';
 import { ErrorMessage } from '../common/ErrorMessage';
 import { useStore } from '@/lib/store';
@@ -8,31 +8,95 @@ export const ChatInterface: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { selectedModel, addMessage, messages } = useStore();
+  const wsRef = useRef<WebSocket | null>(null);
+  const AUTH_TOKEN = process.env.NEXT_PUBLIC_AUTH_TOKEN;
+
+  useEffect(() => {
+    if (!AUTH_TOKEN) {
+      setError('Authentication token not found');
+      return;
+    }
+
+    // Initialize WebSocket connection with auth header
+    const ws = new WebSocket('wss://beeef73badbe-8000.proxy.runpod.net/ws', {
+      headers: {
+        'Authorization': `Bearer ${AUTH_TOKEN}`
+      }
+    });
+
+    ws.onopen = () => {
+      console.log('WebSocket connected, sending auth message');
+      // Send authentication message
+      const authMessage = {
+        type: 'system',
+        message: 'auth',
+        token: AUTH_TOKEN
+      };
+      ws.send(JSON.stringify(authMessage));
+    };
+
+    ws.onmessage = (event) => {
+      const response = JSON.parse(event.data);
+      console.log('Received message:', response);
+
+      if (response.type === 'system') {
+        if (response.status === 'authenticated') {
+          console.log('Successfully authenticated');
+          // Now the connection is ready for chat messages
+        } else if (response.status === 'error') {
+          setError(response.message || 'Authentication failed');
+          ws.close();
+        }
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      setError('Failed to connect to model service');
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket disconnected');
+    };
+
+    wsRef.current = ws;
+
+    // Cleanup on unmount
+    return () => {
+      ws.close();
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    if (!message.trim() || !wsRef.current) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          message: message.trim(),
-          model: selectedModel 
-        })
-      });
+      const messageData = {
+        type: 'chat',
+        message: message.trim(),
+        parameters: {
+          temperature: 0.7,
+          max_length: 100
+        }
+      };
 
-      const data = await response.json();
-      
-      addMessage(message, data.response);
-      setMessage('');
+      wsRef.current.send(JSON.stringify(messageData));
+
+      // Set up one-time message handler
+      wsRef.current.onmessage = (event) => {
+        const response = JSON.parse(event.data);
+        addMessage(message, response);
+        setMessage('');
+        setIsLoading(false);
+        // Remove the message handler after receiving response
+        wsRef.current!.onmessage = null;
+      };
     } catch (err) {
       setError('Error sending message');
-    } finally {
       setIsLoading(false);
     }
   };
