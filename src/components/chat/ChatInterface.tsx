@@ -9,6 +9,7 @@ export const ChatInterface: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { addMessage, messages } = useStore();
   const wsRef = useRef<WebSocket | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const AUTH_TOKEN = process.env.NEXT_PUBLIC_AUTH_TOKEN;
 
   useEffect(() => {
@@ -17,12 +18,9 @@ export const ChatInterface: React.FC = () => {
       return;
     }
 
-    // Initialize WebSocket connection with auth header
-    const ws = new WebSocket('wss://beeef73badbe-8000.proxy.runpod.net/ws', {
-      headers: {
-        'Authorization': `Bearer ${AUTH_TOKEN}`
-      }
-    });
+    // Initialize WebSocket connection
+    // Note: Browser WebSocket API doesn't support headers in constructor
+    const ws = new WebSocket('wss://beeef73badbe-8000.proxy.runpod.net/ws');
 
     ws.onopen = () => {
       console.log('WebSocket connected, sending auth message');
@@ -42,6 +40,7 @@ export const ChatInterface: React.FC = () => {
       if (response.type === 'system') {
         if (response.status === 'authenticated') {
           console.log('Successfully authenticated');
+          setIsAuthenticated(true);
           // Now the connection is ready for chat messages
         } else if (response.status === 'error') {
           setError(response.message || 'Authentication failed');
@@ -57,6 +56,7 @@ export const ChatInterface: React.FC = () => {
 
     ws.onclose = () => {
       console.log('WebSocket disconnected');
+      setIsAuthenticated(false);
     };
 
     wsRef.current = ws;
@@ -103,6 +103,11 @@ export const ChatInterface: React.FC = () => {
 
   return (
     <div className="w-full max-w-2xl mx-auto p-4">
+      {!isAuthenticated && !error && (
+        <div className="mb-4 p-2 bg-yellow-100 text-yellow-800 rounded">
+          Connecting to model service...
+        </div>
+      )}
       <div className="mb-4 space-y-4" data-testid="message-container">
         {messages.map((msg) => (
           <div 
@@ -124,10 +129,11 @@ export const ChatInterface: React.FC = () => {
           placeholder="Type your message here..."
           rows={4}
           className="w-full p-2 border rounded-lg resize-none"
+          disabled={!isAuthenticated || isLoading}
         />
         <button
           type="submit"
-          disabled={!message.trim() || isLoading}
+          disabled={!message.trim() || isLoading || !isAuthenticated}
           className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
         >
           Send
