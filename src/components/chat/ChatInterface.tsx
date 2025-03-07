@@ -7,7 +7,7 @@ export const ChatInterface: React.FC = () => {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { selectedModel, addMessage, messages } = useStore();
+  const { addMessage, messages } = useStore();
   const wsRef = useRef<WebSocket | null>(null);
   const AUTH_TOKEN = process.env.NEXT_PUBLIC_AUTH_TOKEN;
 
