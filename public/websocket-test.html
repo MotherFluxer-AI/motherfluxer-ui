@@ -91,7 +91,11 @@
             addLog(`Connecting to ${WS_URL}...`);
             
             try {
-                ws = new WebSocket(WS_URL);
+                ws = new WebSocket(WS_URL, [], {
+                    headers: {
+                        "Authorization": `Bearer ${AUTH_TOKEN}`
+                    }
+                });
                 
                 ws.onopen = () => {
                     addLog('WebSocket connected!');
