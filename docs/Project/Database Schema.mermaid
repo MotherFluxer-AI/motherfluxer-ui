@@ -1,0 +1,74 @@
+erDiagram
+    users {
+        uuid id PK
+        string email
+        string hashed_password
+        string role
+        timestamp created_at
+        timestamp last_login
+        boolean is_active
+        int request_limit
+    }
+
+    model_instances {
+        uuid id PK
+        uuid admin_id FK
+        string instance_name
+        string host_address
+        timestamp registered_at
+        boolean is_active
+        float health_score
+        timestamp last_health_check
+        string version
+        string container_version "Tracks open source container version"
+    }
+
+    requests {
+        uuid id PK
+        uuid user_id FK
+        uuid model_instance_id FK
+        text prompt
+        text response
+        timestamp created_at
+        float response_time
+        boolean successful
+        string error_type
+        string routing_logic "Records routing decision"
+    }
+
+    health_checks {
+        uuid id PK
+        uuid model_instance_id FK
+        timestamp check_time
+        boolean is_online
+        float response_time
+        string status_message
+        text health_details "Detailed health metrics"
+    }
+
+    metrics_daily {
+        uuid id PK
+        uuid model_instance_id FK
+        date check_date
+        int total_requests
+        int successful_requests
+        int failed_requests
+        float avg_response_time
+        float uptime_percentage
+        text routing_metrics "Routing performance data"
+    }
+
+    rate_limits {
+        uuid id PK
+        uuid user_id FK
+        timestamp window_start
+        int request_count
+        timestamp last_request
+    }
+
+    users ||--o{ requests : "makes"
+    users ||--o{ model_instances : "manages"
+    model_instances ||--o{ requests : "processes"
+    model_instances ||--o{ health_checks : "undergoes"
+    model_instances ||--o{ metrics_daily : "generates"
+    users ||--o{ rate_limits : "has"
