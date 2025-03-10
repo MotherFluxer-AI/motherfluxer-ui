@@ -6,15 +6,14 @@ export class WebSocketService {
   private reconnectAttempts = 0;
   private readonly maxReconnectAttempts = 5;
   private readonly wsUrl = 'wss://admin.motherfluxer.ai/ws';
-
-  constructor() {
-    this.handleMessage = this.handleMessage.bind(this);
-  }
+  private messageHandler: ((message: any) => void) | null = null;
 
   connect(onMessage: (message: any) => void) {
     if (!authService.isAuthenticated()) {
       throw new Error('Authentication required');
     }
+
+    this.messageHandler = onMessage;
 
     return new Promise<void>((resolve, reject) => {
       try {
@@ -41,7 +40,9 @@ export class WebSocketService {
 
         this.ws.onmessage = (event) => {
           const data = JSON.parse(event.data);
-          onMessage(data);
+          if (this.messageHandler) {
+            this.messageHandler(data);
+          }
         };
       } catch (error) {
         reject(error);
@@ -62,6 +63,7 @@ export class WebSocketService {
     if (this.ws) {
       this.ws.close();
       this.ws = null;
+      this.messageHandler = null;
     }
   }
 }
