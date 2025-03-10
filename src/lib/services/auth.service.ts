@@ -5,6 +5,7 @@ export class AuthService {
 
   async login(email: string, password: string) {
     try {
+      console.log('Attempting login to:', `${this.baseUrl}/auth/login`);
       const response = await fetch(`${this.baseUrl}/auth/login`, {
         method: 'POST',
         headers: {
@@ -14,12 +15,15 @@ export class AuthService {
       });
 
       const data = await response.json();
+      console.log('Login response:', data);
+
       if (data.status === 'success') {
         this.setAuthData(data.data.token);
         return data.data;
       }
       throw new Error(data.message);
     } catch (error) {
+      console.error('Login error:', error);
       throw new Error('Authentication failed: ' + (error as Error).message);
     }
   }
