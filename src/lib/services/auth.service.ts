@@ -1,8 +1,7 @@
 // src/lib/services/auth.service.ts
 export class AuthService {
   private token: string | null = null;
-  private user: any | null = null;
-  private baseUrl = 'https://user.motherfluxer.ai';
+  private baseUrl = 'https://admin.motherfluxer.ai';
 
   async login(email: string, password: string) {
     try {
@@ -16,7 +15,7 @@ export class AuthService {
 
       const data = await response.json();
       if (data.status === 'success') {
-        this.setAuthData(data.data);
+        this.setAuthData(data.data.token);
         return data.data;
       }
       throw new Error(data.message);
@@ -46,11 +45,9 @@ export class AuthService {
       }
     }
   
-    private setAuthData(data: { token: string; user: any }) {
-      this.token = data.token;
-      this.user = data.user;
-      localStorage.setItem('auth_token', data.token);
-      localStorage.setItem('user_data', JSON.stringify(data.user));
+    private setAuthData(token: string) {
+      this.token = token;
+      localStorage.setItem('auth_token', token);
     }
   
     getAuthHeaders() {
@@ -64,11 +61,13 @@ export class AuthService {
       return !!this.token;
     }
   
+    getToken() {
+      return this.token;
+    }
+  
     logout() {
       this.token = null;
-      this.user = null;
       localStorage.removeItem('auth_token');
-      localStorage.removeItem('user_data');
     }
   }
   
