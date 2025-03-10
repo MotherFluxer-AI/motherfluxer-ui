@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LoadingIndicator } from '../common/LoadingIndicator';
 import { ErrorMessage } from '../common/ErrorMessage';
 import { wsService } from '@/lib/services/websocket.service';
-import { ChatMessage, ApiResponse } from '@/lib/api/types';
+import { ApiClient } from '@/lib/api/client';
 import { ChatMessage } from '@/lib/api/types';
 import { MessageDisplay } from './MessageDisplay';
 
