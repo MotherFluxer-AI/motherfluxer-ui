@@ -8,8 +8,10 @@ export class AuthService {
       console.log('Attempting login to:', `${this.baseUrl}/auth/login`);
       const response = await fetch(`${this.baseUrl}/auth/login`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Origin': 'https://user.motherfluxer.ai'
         },
         body: JSON.stringify({ email, password })
       });
