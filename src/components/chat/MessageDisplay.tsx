@@ -1,35 +1,11 @@
-/**
- * @ai-context: Renders chat messages with sender-specific styling and layout
- * @ai-dependencies: Message type from global types
- * @ai-critical-points: Must maintain message order and handle different sender types
- *
- * LEARNING POINTS:
- * 1. Implements bidirectional chat layout
- * 2. Uses conditional styling based on sender
- */
+import React from 'react';
+import { ChatMessage } from '@/lib/api/types';
 
-interface Message {
-  id: string;
-  content: string;
-  sender: 'user' | 'assistant';
-  timestamp: Date;
-}
-
-/**
- * @ai-function: Message display component properties
- * @ai-requires: Array of valid Message objects
- * @ai-affects: Chat message visualization
- */
 interface MessageDisplayProps {
-  messages: Message[];
+  messages: ChatMessage[];
 }
 
 export const MessageDisplay: React.FC<MessageDisplayProps> = ({ messages }) => {
-  /**
-   * @ai-function: Renders message list with sender-specific styling
-   * @ai-requires: Valid messages array with sender information
-   * @ai-affects: Visual presentation of chat history
-   */
   return (
     <div className="flex flex-col space-y-4 p-4">
       {messages.map((message) => (
@@ -52,4 +28,4 @@ export const MessageDisplay: React.FC<MessageDisplayProps> = ({ messages }) => {
       ))}
     </div>
   );
-}; 
+};

@@ -1,19 +1,12 @@
-export interface ModelInstance {
+export interface ChatMessage {
   id: string;
-  modelId: string;
-  instanceName: string;
-  hostAddress: string;
-  healthScore: number;
-  isActive: boolean;
-  version: string;
-  containerVersion?: string;
-  adminId?: string;
-  registeredAt?: Date;
-  lastHealthCheck?: Date;
+  content: string;
+  sender: 'user' | 'assistant';
+  timestamp: Date;
 }
 
 export interface ApiResponse<T> {
   data?: T;
   error?: string;
   status: number;
-} 
+}
