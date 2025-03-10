@@ -1,23 +1,40 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+// src/lib/api/client.ts
+import { authService } from '../services/auth.service';
+import { ChatMessage, ApiResponse } from './types';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://admin.motherfluxer.ai/api';
 
 export class ApiClient {
   static async sendMessage(message: string): Promise<ApiResponse<ChatMessage>> {
-    return this.post<ChatMessage>('/chat', { message });
-  }
+    if (!authService.isAuthenticated()) {
+      throw new Error('Authentication required');
+    }
 
-  static async post<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const response = await fetch(`${API_BASE_URL}/model/message`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          ...authService.getAuthHeaders(),
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ message }),
       });
+
+      if (response.status === 429) {
+        throw new Error('Rate limit exceeded. Please try again later.');
+      }
+
       const data = await response.json();
-      return { data, status: response.status };
+      if (data.status === 'success') {
+        return { data: data.data, status: response.status };
+      }
+      
+      throw new Error(data.message || 'Failed to send message');
     } catch (error) {
-      return { error: (error as Error).message, status: 500 };
+      return { 
+        error: (error as Error).message, 
+        status: error instanceof Error && error.message.includes('Rate limit') ? 429 : 500 
+      };
     }
   }
 }

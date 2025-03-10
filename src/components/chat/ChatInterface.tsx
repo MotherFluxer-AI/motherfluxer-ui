@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LoadingIndicator } from '../common/LoadingIndicator';
 import { ErrorMessage } from '../common/ErrorMessage';
-import { ApiClient } from '@/lib/api/client';
-import { ChatMessage, ApiResponse } from '@/lib/api/types';
+import { wsService } from '@/lib/services/websocket.service';
+import { ChatMessage } from '@/lib/api/types';
 import { MessageDisplay } from './MessageDisplay';
 
 // Use the imported ChatMessage type instead of local interface
@@ -13,6 +13,37 @@ export const ChatInterface: React.FC = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Connect to WebSocket when component mounts
+    const connectWebSocket = async () => {
+      try {
+        await wsService.connect((data) => {
+          if (data.type === 'response') {
+            setMessages(prev => [...prev, {
+              id: Date.now().toString(),
+              content: data.content,
+              sender: 'assistant',
+              timestamp: new Date()
+            }]);
+            setIsLoading(false);
+          } else if (data.type === 'error') {
+            setError(data.message);
+            setIsLoading(false);
+          }
+        });
+      } catch (err) {
+        setError('Failed to connect to chat service');
+      }
+    };
+
+    connectWebSocket();
+
+    // Cleanup WebSocket connection when component unmounts
+    return () => {
+      wsService.disconnect();
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,20 +67,10 @@ export const ChatInterface: React.FC = () => {
       if (response.error) {
         throw new Error(response.error);
       }
-
-      if (response.data) {
-        setMessages(prev => [...prev, {
-          id: Date.now().toString(),
-          content: response.data.content,
-          sender: 'assistant',
-          timestamp: new Date()
-        }]);
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send message');
-      console.error('Error sending message:', err);
-    } finally {
       setIsLoading(false);
+      console.error('Error sending message:', err);
     }
   };
 
