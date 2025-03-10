@@ -3,9 +3,27 @@ import { useState } from 'react';
 import { authService } from '@/lib/services/auth.service';
 import { ApiClient } from '@/lib/api/client';
 
+export const config = {
+  auth: false  // Disable authentication for this page
+};
+
 export default function TestConnection() {
   const [status, setStatus] = useState<string>('Not tested');
   const [error, setError] = useState<string | null>(null);
+
+  const testConnection = async () => {
+    setStatus('Testing connection to admin.motherfluxer.ai...');
+    setError(null);
+    try {
+      // Simple ping test to the API
+      const response = await fetch('https://admin.motherfluxer.ai/api/health');
+      const data = await response.json();
+      setStatus(`Connection test: ${data.status || 'OK'}`);
+    } catch (err) {
+      setError(`Connection failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setStatus('Connection failed');
+    }
+  };
 
   const testLogin = async () => {
     setStatus('Testing login...');
@@ -44,6 +62,12 @@ export default function TestConnection() {
       </div>
 
       <div className="space-x-4">
+        <button
+          onClick={testConnection}
+          className="px-4 py-2 bg-gray-500 text-white rounded"
+        >
+          Test Connection
+        </button>
         <button
           onClick={testLogin}
           className="px-4 py-2 bg-blue-500 text-white rounded"
