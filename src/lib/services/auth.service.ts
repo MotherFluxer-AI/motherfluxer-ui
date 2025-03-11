@@ -1,14 +1,14 @@
 // src/lib/services/auth.service.ts
 export class AuthService {
   private token: string | null = null;
-  private baseUrl = 'https://admin.motherfluxer.ai';
+  private baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://admin.motherfluxer.ai/api';
 
   async login(email: string, password: string) {
     try {
-      console.log('Attempting login to:', `${this.baseUrl}/auth/login`);
-      const response = await fetch(`${this.baseUrl}/auth/login`, {
+      const loginUrl = `${this.baseUrl}/auth/login`;
+      console.log('Attempting login to:', loginUrl);
+      const response = await fetch(loginUrl, {
         method: 'POST',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Origin': 'https://user.motherfluxer.ai'

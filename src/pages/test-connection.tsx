@@ -48,9 +48,10 @@ export default function TestConnection() {
     setError(null);
     setDetailedError(null);
     try {
-      // Use the health check endpoint
-      console.log('Testing connection to:', 'https://admin.motherfluxer.ai/health');
-      const response = await fetch('https://admin.motherfluxer.ai/health');
+      // Use the health check endpoint with the API prefix
+      const healthUrl = `${process.env.NEXT_PUBLIC_API_URL}/health`;
+      console.log('Testing connection to:', healthUrl);
+      const response = await fetch(healthUrl);
       console.log('Connection response status:', response.status);
       
       if (!response.ok) {
@@ -76,7 +77,7 @@ export default function TestConnection() {
     setError(null);
     setDetailedError(null);
     try {
-      console.log('Attempting login to:', 'https://admin.motherfluxer.ai/auth/login');
+      console.log('Attempting login to:', `${process.env.NEXT_PUBLIC_API_URL}/auth/login`);
       const result = await authService.login(email, password);
       console.log('Login response:', result);
       setStatus('Login successful');
@@ -93,8 +94,11 @@ export default function TestConnection() {
       const token = authService.getToken();
       console.log('Testing API with token:', token ? 'Token present' : 'No token');
       
-      // Use the admin dashboard endpoint
-      const response = await fetch('https://admin.motherfluxer.ai/admin/dashboard', {
+      // Use the admin dashboard endpoint with API prefix
+      const dashboardUrl = `${process.env.NEXT_PUBLIC_API_URL}/admin/dashboard`;
+      console.log('Testing admin endpoint:', dashboardUrl);
+      
+      const response = await fetch(dashboardUrl, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
