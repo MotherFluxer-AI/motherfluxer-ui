@@ -48,9 +48,9 @@ export default function TestConnection() {
     setError(null);
     setDetailedError(null);
     try {
-      // Try the auth status endpoint instead since we know auth routes work
-      console.log('Testing connection to:', 'https://admin.motherfluxer.ai/auth/status');
-      const response = await fetch('https://admin.motherfluxer.ai/auth/status');
+      // Use the health check endpoint
+      console.log('Testing connection to:', 'https://admin.motherfluxer.ai/health');
+      const response = await fetch('https://admin.motherfluxer.ai/health');
       console.log('Connection response status:', response.status);
       
       if (!response.ok) {
@@ -93,8 +93,8 @@ export default function TestConnection() {
       const token = authService.getToken();
       console.log('Testing API with token:', token ? 'Token present' : 'No token');
       
-      // Use a different admin endpoint that we know exists
-      const response = await fetch('https://admin.motherfluxer.ai/admin/status', {
+      // Use the admin dashboard endpoint
+      const response = await fetch('https://admin.motherfluxer.ai/admin/dashboard', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
