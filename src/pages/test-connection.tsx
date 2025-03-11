@@ -7,6 +7,9 @@ export const config = {
   auth: false  // Disable authentication for this page
 };
 
+// Add type for ChangeEvent
+import type { ChangeEvent } from 'react';
+
 export default function TestConnection() {
   const [status, setStatus] = useState<string>('Not tested');
   const [error, setError] = useState<string | null>(null);
@@ -17,9 +20,10 @@ export default function TestConnection() {
     setStatus('Testing connection to admin.motherfluxer.ai...');
     setError(null);
     try {
-      const response = await fetch('https://admin.motherfluxer.ai/api/health');
+      // Use the existing health endpoint
+      const response = await fetch('https://admin.motherfluxer.ai/health');
       const data = await response.json();
-      setStatus(`Connection test: ${data.status || 'OK'}`);
+      setStatus(`Connection test: ${data.status === 'success' ? 'OK' : 'Failed'}`);
     } catch (err) {
       setError(`Connection failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
       setStatus('Connection failed');
@@ -34,7 +38,9 @@ export default function TestConnection() {
     setStatus('Testing login...');
     setError(null);
     try {
-      await authService.login(email, password);
+      console.log('Attempting login to:', 'https://admin.motherfluxer.ai/auth/login');
+      const result = await authService.login(email, password);
+      console.log('Login response:', result);
       setStatus('Login successful');
     } catch (err) {
       setError(`Login failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
@@ -46,16 +52,35 @@ export default function TestConnection() {
     setStatus('Testing API connection...');
     setError(null);
     try {
-      const response = await ApiClient.sendMessage('test message');
-      if (response.error) {
-        throw new Error(response.error);
+      // Test the admin endpoint since it requires authentication
+      const response = await fetch('https://admin.motherfluxer.ai/admin/instance/status', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authService.getToken()}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API responded with status ${response.status}`);
       }
+      
+      const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
       setStatus('API connection successful');
+      console.log('API test response:', data);
     } catch (err) {
       setError(`API test failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
       setStatus('API test failed');
+      console.error('API test error:', err);
     }
   };
+
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value);
+  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value);
 
   return (
     <div className="p-4">
@@ -72,7 +97,7 @@ export default function TestConnection() {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={handleEmailChange}
             className="w-full p-2 border rounded"
             placeholder="Enter email"
           />
@@ -82,7 +107,7 @@ export default function TestConnection() {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handlePasswordChange}
             className="w-full p-2 border rounded"
             placeholder="Enter password"
           />
