@@ -1,7 +1,6 @@
 // src/pages/test-connection.tsx
 import { useState } from 'react';
 import { authService } from '@/lib/services/auth.service';
-import { ApiClient } from '@/lib/api/client';
 
 export const config = {
   auth: false  // Disable authentication for this page
@@ -9,6 +8,12 @@ export const config = {
 
 // Add type for ChangeEvent
 import type { ChangeEvent } from 'react';
+
+interface ApiResponse {
+  status: string;
+  data?: any;
+  error?: string;
+}
 
 export default function TestConnection() {
   const [status, setStatus] = useState<string>('Not tested');
@@ -22,7 +27,7 @@ export default function TestConnection() {
     try {
       // Use the existing health endpoint
       const response = await fetch('https://admin.motherfluxer.ai/health');
-      const data = await response.json();
+      const data: ApiResponse = await response.json();
       setStatus(`Connection test: ${data.status === 'success' ? 'OK' : 'Failed'}`);
     } catch (err) {
       setError(`Connection failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
@@ -65,7 +70,7 @@ export default function TestConnection() {
         throw new Error(`API responded with status ${response.status}`);
       }
       
-      const data = await response.json();
+      const data: ApiResponse = await response.json();
       if (data.error) {
         throw new Error(data.error);
       }
