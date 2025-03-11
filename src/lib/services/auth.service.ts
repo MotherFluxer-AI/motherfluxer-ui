@@ -1,7 +1,7 @@
 // src/lib/services/auth.service.ts
 export class AuthService {
   private token: string | null = null;
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://admin.motherfluxer.ai/api';
+  private baseUrl = 'https://admin.motherfluxer.ai';
 
   async login(email: string, password: string) {
     try {
@@ -23,7 +23,7 @@ export class AuthService {
         this.setAuthData(data.data.token);
         return data.data;
       }
-      throw new Error(data.message);
+      throw new Error(data.message || 'Login failed');
     } catch (error) {
       console.error('Login error:', error);
       throw new Error('Authentication failed: ' + (error as Error).message);
