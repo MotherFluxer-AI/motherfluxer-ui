@@ -48,9 +48,17 @@ export default function TestConnection() {
     setError(null);
     setDetailedError(null);
     try {
-      console.log('Testing connection to:', 'https://admin.motherfluxer.ai/health');
-      const response = await fetch('https://admin.motherfluxer.ai/health');
+      // Try the auth status endpoint instead since we know auth routes work
+      console.log('Testing connection to:', 'https://admin.motherfluxer.ai/auth/status');
+      const response = await fetch('https://admin.motherfluxer.ai/auth/status');
       console.log('Connection response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Connection error response:', errorText);
+        throw new Error(`Server responded with status ${response.status}: ${errorText}`);
+      }
+
       const data: ApiResponse = await response.json();
       console.log('Connection response data:', data);
       setStatus(`Connection test: ${data.status === 'success' ? 'OK' : 'Failed'}`);
@@ -85,7 +93,8 @@ export default function TestConnection() {
       const token = authService.getToken();
       console.log('Testing API with token:', token ? 'Token present' : 'No token');
       
-      const response = await fetch('https://admin.motherfluxer.ai/admin/instance/status', {
+      // Use a different admin endpoint that we know exists
+      const response = await fetch('https://admin.motherfluxer.ai/admin/status', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -125,7 +134,7 @@ export default function TestConnection() {
         <p>Status: {status}</p>
         {error && <p className="text-red-500">{error}</p>}
         {detailedError && (
-          <pre className="mt-4 p-4 bg-gray-100 rounded text-sm overflow-auto">
+          <pre className="mt-4 p-4 bg-gray-100 rounded text-sm overflow-auto whitespace-pre-wrap">
             {detailedError}
           </pre>
         )}
