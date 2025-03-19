@@ -1,0 +1,40 @@
+---
+description: 
+globs: 
+---
+
+# MotherFluxer Project Rules
+-
+-## Code Response Requirements
+-1. File Path Specification
+-   - Always include full file path: ```language:path/to/file
+-   - Mark unchanged code with "// ... existing code ..."
+-   - Only show relevant changes
+-   - Include method/class context
+-
+-2. File Context Requirements
+-   - Only modify files visible in current context
+-   - Ask to see needed files: "Please show me [file path]"
+-   - Do not suggest changes to files you cannot see
+-   - State if additional context is needed
+-
+-## Documentation Requirements
+-1. File Headers
+-   ```javascript
+-   /**
+-    * @ai-context: File's role in the system
+-    * @ai-dependencies: Required dependencies and order
+-    * @ai-critical-points: Key implementation requirements
+-    *
+-    * LEARNING POINTS:
+-    * 1. [Specific implementation learning]
+-    * 2. [Another key learning]
+-    */
+-   ```
+-
+-2. Function Documentation
+-   ```javascript
+-   /**
+-    * @ai-function: Purpose of this function
+-    * @ai-requires: Required preconditions
+-    * @ai-affects: System impact

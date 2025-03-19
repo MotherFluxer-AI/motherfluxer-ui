@@ -1,0 +1,42 @@
+flowchart TB
+    subgraph OpenSource["Open Source Components"]
+        direction TB
+        subgraph UIFramework["UI & Routing Framework"]
+            ui["User Interface\n(Next.js + React)"]
+            routing["Routing Methodology\n- Load Balancing Logic\n- Health Check Strategy\n- Instance Selection"]
+        end
+        docker["Phi-2 Docker Package"]
+        style ui fill:#e6ffe6
+        style routing fill:#e6ffe6
+        style docker fill:#e6ffe6
+    end
+
+    subgraph Private["Private Infrastructure"]
+        direction TB
+        auth["Authentication Gateway"]
+        router["Routing Implementation\n(Executes Open Source Logic)"]
+        db[(Database)]
+        style auth fill:#ffe6e6
+        style router fill:#ffe6e6
+        style db fill:#ffe6e6
+    end
+
+    subgraph Instances["Model Instances"]
+        direction TB
+        m1["Instance 1"]
+        m2["Instance 2"]
+        m3["Instance 3"]
+    end
+
+    %% Flow connections
+    ui --> auth
+    routing -.-|"Defines Logic"| router
+    auth --> router
+    
+    %% Docker deployment
+    docker -.->|"Downloaded & Deployed"| Instances
+    
+    %% Instance connections
+    m1 & m2 & m3 --> auth
+    router --> m1 & m2 & m3
+    router --> db
